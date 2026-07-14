@@ -51,6 +51,7 @@ const seedDatabase = async () => {
     const salt = await bcrypt.genSalt(10);
     const commonPassword = await bcrypt.hash('password123', salt);
     const adminPassword = await bcrypt.hash('admin123', salt);
+    const bankPassword = await bcrypt.hash('bank123', salt);
 
     // 1. Create Admin
     await User.create({
@@ -160,7 +161,7 @@ const seedDatabase = async () => {
         name,
         licenceNumber: `LIC-BB-${String(j + 1000).padStart(4, '0')}`,
         email,
-        password: commonPassword,
+        password: bankPassword,
         phone: `99887766${String(j).padStart(2, '0')}`,
         address: `${Math.floor(Math.random() * 200 + 1)} Ring Road, Zone ${j + 1}`,
         city: city.name,
@@ -175,7 +176,7 @@ const seedDatabase = async () => {
     }
 
     await BloodBank.insertMany(banks);
-    console.log(`Successfully seeded 10 Blood Banks! (Pass: 'password123')`);
+    console.log(`Successfully seeded 10 Blood Banks! (Pass: 'bank123')`);
 
     // Print out a few examples of seeded donors and banks
     console.log('\nSample Seeded Donors:');

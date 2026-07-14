@@ -126,5 +126,6 @@ To ease testing, the database seed script generates the following test accounts:
 | **Donor (O-)** | `donor1@bloodconnect.org` | `password123` | Pre-configured in Mumbai; available for requests |
 | **Donor (AB-)** | `donor2@bloodconnect.org` | `password123` | Pre-configured in Delhi; available for requests |
 | **Donor (B-)** | `donor3@bloodconnect.org` | `password123` | Pre-configured in Bangalore; available for requests |
+| **Blood Bank** | `bank1@bloodconnect.org` | `bank123` | Pre-configured in Mumbai; can update inventory, manage donations |
 
-*Any of the other seeded donors (`donor1@bloodconnect.org` through `donor50@bloodconnect.org`) can be accessed using password `password123`.*
+*Any of the other seeded donors (`donor1@bloodconnect.org` through `donor50@bloodconnect.org`) can be accessed using password `password123`. Seeded blood banks (`bank1@bloodconnect.org` through `bank10@bloodconnect.org`) can be accessed using password `bank123`.*

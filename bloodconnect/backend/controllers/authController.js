@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const BloodBank = require('../models/BloodBank');
 
 // Helper to generate JWT
 const generateToken = (id) => {
@@ -90,15 +91,43 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // Check for user
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    let isBloodBank = false;
+
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      // Fallback: Check for blood bank
+      user = await BloodBank.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Invalid credentials' });
+      }
+      isBloodBank = true;
     }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    if (isBloodBank) {
+      return res.status(200).json({
+        success: true,
+        token: generateToken(user._id),
+        user: {
+          _id: user._id,
+          name: user.name,
+          licenceNumber: user.licenceNumber,
+          email: user.email,
+          phone: user.phone,
+          address: user.address,
+          city: user.city,
+          location: user.location,
+          inventory: user.inventory,
+          lowStockThreshold: user.lowStockThreshold,
+          isVerified: user.isVerified,
+          role: 'bloodbank',
+        },
+      });
     }
 
     res.status(200).json({

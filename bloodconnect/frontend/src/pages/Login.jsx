@@ -39,6 +39,8 @@ const Login = () => {
         navigate('/donor/dashboard');
       } else if (res.role === 'admin') {
         navigate('/admin');
+      } else if (res.role === 'bloodbank') {
+        navigate('/bloodbank/dashboard');
       } else {
         navigate('/requester/dashboard');
       }
@@ -137,13 +139,18 @@ const Login = () => {
           </div>
         </form>
 
-        <div className="text-center pt-2">
+        <div className="text-center pt-2 space-y-2">
           <p className="text-sm text-gray-500">
             Don't have an account?{' '}
             <Link to="/signup" className="font-semibold text-red-600 hover:text-red-700 transition duration-150">
               Create an Account
             </Link>
           </p>
+          <div className="pt-2 border-t border-gray-100">
+            <Link to="/bloodbank/login" className="text-xs font-semibold text-gray-500 hover:text-red-600 transition duration-150">
+              Are you a Blood Bank? Login to Blood Bank Portal
+            </Link>
+          </div>
         </div>
       </div>
     </div>

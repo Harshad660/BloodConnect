@@ -117,11 +117,18 @@ const BloodBankLogin = () => {
           </button>
         </form>
 
-        <div className="text-center text-xs font-semibold text-gray-500 mt-6">
-          <span>Need to register your organization? </span>
-          <Link to="/bloodbank/signup" className="text-red-600 hover:text-red-700 hover:underline ml-1">
-            Sign up here
-          </Link>
+        <div className="text-center text-xs font-semibold text-gray-500 mt-6 space-y-2">
+          <div>
+            <span>Need to register your organization? </span>
+            <Link to="/bloodbank/signup" className="text-red-600 hover:text-red-700 hover:underline ml-1">
+              Sign up here
+            </Link>
+          </div>
+          <div className="pt-2 border-t border-gray-100">
+            <Link to="/login" className="text-gray-500 hover:text-red-600 transition duration-150">
+              Are you a Donor or Requester? Login here
+            </Link>
+          </div>
         </div>
       </div>
     </div>
