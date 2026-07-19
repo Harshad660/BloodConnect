@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const BloodBank = require('../models/BloodBank');
+const SOSRequest = require('../models/SOSRequest');
 
 // @desc    Get both donors and blood banks in one call
 // @route   GET /api/search/combined
@@ -15,6 +16,10 @@ router.get('/combined', async (req, res) => {
 
     const searchRadius = parseFloat(radius) || 10; // Default 10km
 
+    // Find all users who have an active pending SOS request
+    const activeSOS = await SOSRequest.find({ status: 'pending' }).select('requesterId');
+    const excludedIds = activeSOS.map(r => r.requesterId.toString());
+
     if (lat && lng) {
       const latitude = parseFloat(lat);
       const longitude = parseFloat(lng);
@@ -23,6 +28,7 @@ router.get('/combined', async (req, res) => {
       const donorFilter = {
         role: 'donor',
         isAvailable: true,
+        _id: { $nin: excludedIds },
       };
       if (bloodGroup) {
         donorFilter.bloodGroup = bloodGroup;
@@ -97,6 +103,7 @@ router.get('/combined', async (req, res) => {
       const donorQuery = {
         role: 'donor',
         isAvailable: true,
+        _id: { $nin: excludedIds },
       };
       if (bloodGroup) {
         donorQuery.bloodGroup = bloodGroup;

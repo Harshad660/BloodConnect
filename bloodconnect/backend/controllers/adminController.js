@@ -156,3 +156,47 @@ exports.deleteBloodBank = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error deleting blood bank' });
   }
 };
+
+// @desc    Get all requesters (admin only)
+// @route   GET /api/admin/requesters
+// @access  Private/Admin
+exports.getAllRequesters = async (req, res) => {
+  try {
+    const requesters = await User.find({ role: 'requester' }).select('-password').sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: requesters.length,
+      data: requesters,
+    });
+  } catch (error) {
+    console.error('Admin get requesters error:', error);
+    res.status(500).json({ success: false, message: 'Server error retrieving requesters' });
+  }
+};
+
+// @desc    Verify or toggle verification of a requester
+// @route   PUT /api/admin/requesters/:id/verify
+// @access  Private/Admin
+exports.verifyRequester = async (req, res) => {
+  try {
+    const { isVerified } = req.body;
+    const requester = await User.findOne({ _id: req.params.id, role: 'requester' });
+
+    if (!requester) {
+      return res.status(404).json({ success: false, message: 'Requester not found' });
+    }
+
+    requester.isVerified = isVerified !== undefined ? isVerified : !requester.isVerified;
+    await requester.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Requester verification status set to ${requester.isVerified}`,
+      data: requester,
+    });
+  } catch (error) {
+    console.error('Admin verify requester error:', error);
+    res.status(500).json({ success: false, message: 'Server error updating verification status' });
+  }
+};

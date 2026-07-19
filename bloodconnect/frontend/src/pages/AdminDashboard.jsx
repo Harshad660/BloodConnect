@@ -5,10 +5,11 @@ import toast from 'react-hot-toast';
 
 const AdminDashboard = () => {
   const [donors, setDonors] = useState([]);
+  const [requesters, setRequesters] = useState([]);
   const [sosRequests, setSOSRequests] = useState([]);
   const [bloodBanks, setBloodBanks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('donors'); // 'donors', 'sos', or 'bloodbanks'
+  const [activeTab, setActiveTab] = useState('donors'); // 'donors', 'requesters', 'sos', or 'bloodbanks'
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -18,14 +19,18 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [donorsRes, sosRes, banksRes] = await Promise.all([
+      const [donorsRes, requestersRes, sosRes, banksRes] = await Promise.all([
         api.get('/admin/donors'),
+        api.get('/admin/requesters'),
         api.get('/admin/sos'),
         api.get('/admin/bloodbanks'),
       ]);
 
       if (donorsRes.data.success) {
         setDonors(donorsRes.data.data);
+      }
+      if (requestersRes.data.success) {
+        setRequesters(requestersRes.data.data);
       }
       if (sosRes.data.success) {
         setSOSRequests(sosRes.data.data);
@@ -47,6 +52,21 @@ const AdminDashboard = () => {
       if (res.data.success) {
         setDonors((prev) =>
           prev.map((d) => (d._id === donorId ? { ...d, isVerified: !currentStatus } : d))
+        );
+        toast.success(`Verification status updated!`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update verification status');
+    }
+  };
+
+  const handleRequesterVerifyToggle = async (requesterId, currentStatus) => {
+    try {
+      const res = await api.put(`/admin/requesters/${requesterId}/verify`, { isVerified: !currentStatus });
+      if (res.data.success) {
+        setRequesters((prev) =>
+          prev.map((r) => (r._id === requesterId ? { ...r, isVerified: !currentStatus } : r))
         );
         toast.success(`Verification status updated!`);
       }
@@ -80,6 +100,7 @@ const AdminDashboard = () => {
       const res = await api.delete(`/admin/donors/${userId}`);
       if (res.data.success) {
         setDonors((prev) => prev.filter((d) => d._id !== userId));
+        setRequesters((prev) => prev.filter((r) => r._id !== userId));
         toast.success(`User "${name}" has been deleted.`);
       }
     } catch (err) {
@@ -114,6 +135,13 @@ const AdminDashboard = () => {
       d.bloodGroup.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredRequesters = requesters.filter(
+    (r) =>
+      r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.city.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const filteredSOS = sosRequests.filter(
     (r) =>
       r.hospitalName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -132,6 +160,7 @@ const AdminDashboard = () => {
 
   // Statistics calculation
   const totalVerifiedDonors = donors.filter((d) => d.isVerified).length;
+  const totalVerifiedRequesters = requesters.filter((r) => r.isVerified).length;
   const activeSOSCount = sosRequests.filter((r) => r.status === 'pending').length;
   const totalVerifiedBanks = bloodBanks.filter((b) => b.isVerified).length;
 
@@ -169,7 +198,7 @@ const AdminDashboard = () => {
           </div>
           <div>
             <p className="text-2xl font-black text-gray-800">{donors.length}</p>
-            <p className="text-xxs font-bold text-gray-400 uppercase tracking-wider">Registered Donors</p>
+            <p className="text-xxs font-bold text-gray-400 uppercase tracking-wider">Registered Donors ({totalVerifiedDonors} Verified)</p>
           </div>
         </div>
 
@@ -178,8 +207,8 @@ const AdminDashboard = () => {
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-2xl font-black text-gray-800">{totalVerifiedDonors}</p>
-            <p className="text-xxs font-bold text-gray-400 uppercase tracking-wider">Verified Donors</p>
+            <p className="text-2xl font-black text-gray-800">{requesters.length}</p>
+            <p className="text-xxs font-bold text-gray-400 uppercase tracking-wider">Registered Requesters ({totalVerifiedRequesters} Verified)</p>
           </div>
         </div>
 
@@ -214,7 +243,15 @@ const AdminDashboard = () => {
               activeTab === 'donors' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
-            Donor Accounts
+            Donors
+          </button>
+          <button
+            onClick={() => { setActiveTab('requesters'); setSearchTerm(''); }}
+            className={`flex-1 md:flex-none py-2 px-6 text-xs font-bold rounded-xl transition duration-150 ${
+              activeTab === 'requesters' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Requesters
           </button>
           <button
             onClick={() => { setActiveTab('sos'); setSearchTerm(''); }}
@@ -222,7 +259,7 @@ const AdminDashboard = () => {
               activeTab === 'sos' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
-            Emergency SOS History
+            SOS History
           </button>
           <button
             onClick={() => { setActiveTab('bloodbanks'); setSearchTerm(''); }}
@@ -243,6 +280,8 @@ const AdminDashboard = () => {
             type="text"
             placeholder={
               activeTab === 'donors'
+                ? 'Search by name, city, email...'
+                : activeTab === 'requesters'
                 ? 'Search by name, city, email...'
                 : activeTab === 'bloodbanks'
                 ? 'Search by name, city, licence...'
@@ -416,6 +455,74 @@ const AdminDashboard = () => {
                       </tr>
                     );
                   })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : activeTab === 'requesters' ? (
+        <div className="bg-white rounded-3xl border border-gray-150 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-150 text-xxs font-bold text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4">Requester Name</th>
+                  <th className="px-6 py-4">Contact Info</th>
+                  <th className="px-6 py-4">Location</th>
+                  <th className="px-6 py-4 text-center">Verified Status</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 text-xs">
+                {filteredRequesters.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="text-center py-12 text-gray-400 italic bg-white">
+                      No matching requester accounts found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRequesters.map((req) => (
+                    <tr key={req._id} className="hover:bg-gray-50/30">
+                      <td className="px-6 py-4">
+                        <div className="font-bold text-gray-900 flex items-center">
+                          <span>{req.name}</span>
+                          {req.isVerified && (
+                            <ShieldCheck className="h-4 w-4 text-green-600 fill-green-50 ml-1.5" />
+                          )}
+                        </div>
+                        <p className="text-[10px] text-gray-400">ID: {req._id}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-gray-800">{req.email}</p>
+                        <p className="text-[10px] text-gray-500">Tel: {req.phone}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="font-medium text-gray-800">{req.city}</p>
+                        <p className="text-[10px] text-gray-500">Pincode: {req.pincode}</p>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => handleRequesterVerifyToggle(req._id, req.isVerified)}
+                          className={`inline-block font-extrabold text-[10px] px-3 py-1 rounded-full border transition duration-150 ${
+                            req.isVerified
+                              ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                              : 'bg-gray-50 text-gray-500 border-gray-250 hover:bg-gray-150'
+                          }`}
+                        >
+                          {req.isVerified ? 'VERIFIED' : 'UNVERIFIED'}
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button
+                          onClick={() => handleDeleteUser(req._id, req.name)}
+                          className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition duration-150"
+                          title="Delete Account"
+                        >
+                          <Trash2 className="h-4.5 w-4.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

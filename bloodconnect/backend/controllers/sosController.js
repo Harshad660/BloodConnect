@@ -62,12 +62,21 @@ exports.createSOS = async (req, res) => {
     const longitude = parseFloat(lng);
     const searchRadius = parseFloat(radius) || 10; // Default 10km radius
 
+    // Find all users who have an active pending SOS request
+    const activeSOS = await SOSRequest.find({ status: 'pending' }).select('requesterId');
+    const excludedIds = activeSOS.map(r => r.requesterId.toString());
+    
+    // Also exclude the requester themselves
+    if (!excludedIds.includes(req.user._id.toString())) {
+      excludedIds.push(req.user._id.toString());
+    }
+
     // 1. Find matching available donors within radius
     const matchingDonors = await User.find({
       role: 'donor',
       isAvailable: true,
       bloodGroup: bloodGroupNeeded,
-      _id: { $ne: req.user._id }, // Exclude requester themselves if they happen to be a donor
+      _id: { $nin: excludedIds },
       location: {
         $near: {
           $geometry: {

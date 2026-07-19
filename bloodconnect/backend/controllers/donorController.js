@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const SOSRequest = require('../models/SOSRequest');
 
 // @desc    Search donors by blood group, location (radius in km), or city
 // @route   GET /api/donors/search
@@ -9,6 +10,10 @@ exports.searchDonors = async (req, res) => {
 
     let donors = [];
 
+    // Find all users who have an active pending SOS request
+    const activeSOS = await SOSRequest.find({ status: 'pending' }).select('requesterId');
+    const excludedIds = activeSOS.map(r => r.requesterId.toString());
+
     // If coordinates are provided, do geospatial query
     if (lat && lng) {
       const latitude = parseFloat(lat);
@@ -18,6 +23,7 @@ exports.searchDonors = async (req, res) => {
       const queryFilter = {
         role: 'donor',
         isAvailable: true,
+        _id: { $nin: excludedIds },
       };
 
       if (bloodGroup) {
@@ -54,6 +60,7 @@ exports.searchDonors = async (req, res) => {
       const query = {
         role: 'donor',
         isAvailable: true,
+        _id: { $nin: excludedIds },
       };
 
       if (bloodGroup) {
