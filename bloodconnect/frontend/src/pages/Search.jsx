@@ -577,4 +577,4 @@ const Search = () => {
   );
 };
 
-export default Search;earch;
+export default Search;
