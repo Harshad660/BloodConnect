@@ -65,7 +65,7 @@ const BloodBankSignup = () => {
     }
 
     if (lat === '' || lng === '') {
-      setErrorMsg('Please select your coordinates on the map or tap "Detect My Location".');
+      setErrorMsg('Please select your coordinates on the map.');
       return;
     }
 
@@ -97,25 +97,25 @@ const BloodBankSignup = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-gray-50/50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl w-full space-y-8 bg-white p-6 sm:p-10 rounded-3xl shadow-xl border border-gray-100 relative">
-        <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-red-500 via-red-600 to-red-800 rounded-t-3xl"></div>
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-clinical-bg py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl w-full space-y-8 bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-soft-border relative">
+        <div className="absolute top-0 inset-x-0 h-1 bg-brand-red"></div>
 
         <div className="flex flex-col items-center text-center">
-          <span className="bg-red-100 text-red-600 p-3 rounded-2xl shadow-sm mb-4">
-            <Building2 className="h-8 w-8 text-red-600 animate-pulse" />
+          <span className="bg-brand-red/10 text-brand-red p-3.5 rounded-2xl mb-4">
+            <Building2 className="h-6 w-6 text-brand-red" />
           </span>
-          <h2 className="text-3xl font-black font-display tracking-tight text-gray-900">
+          <h2 className="text-2xl font-black font-display tracking-tight text-ink-dark">
             Register Blood Bank
           </h2>
-          <p className="mt-2 text-sm text-gray-500 max-w-sm">
-            Join the BloodConnect emergency network as an organization and manage your stock levels.
+          <p className="mt-2 text-xs text-gray-500 max-w-sm font-medium leading-relaxed">
+            Join the BloodConnect emergency network as an organization and manage inventory coordinates.
           </p>
         </div>
 
         {errorMsg && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-xl text-xs font-semibold flex items-start space-x-2">
-            <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-sos-red/10 border border-sos-red/25 text-sos-red px-4 py-3.5 rounded-xl text-xxs font-bold flex items-start space-x-2">
+            <AlertCircle className="h-4 w-4 text-sos-red flex-shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -125,7 +125,7 @@ const BloodBankSignup = () => {
             
             {/* Organization Info */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2">
+              <h3 className="text-xxs font-black text-gray-400 uppercase tracking-widest border-b border-soft-border pb-2">
                 1. Organization Details
               </h3>
 
@@ -134,7 +134,7 @@ const BloodBankSignup = () => {
                   Blood Bank Name
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-450">
                     <Building2 className="h-4 w-4" />
                   </span>
                   <input
@@ -144,7 +144,7 @@ const BloodBankSignup = () => {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="e.g. Red Cross Blood Center"
-                    className="block w-full pl-9 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-9 pr-3.5 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark"
                   />
                 </div>
               </div>
@@ -154,7 +154,7 @@ const BloodBankSignup = () => {
                   Licence / Registration Number
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-455">
                     <ShieldCheck className="h-4 w-4" />
                   </span>
                   <input
@@ -164,7 +164,7 @@ const BloodBankSignup = () => {
                     value={formData.licenceNumber}
                     onChange={handleChange}
                     placeholder="e.g. LIC-998877-BB"
-                    className="block w-full pl-9 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-9 pr-3.5 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark font-mono font-bold"
                   />
                 </div>
               </div>
@@ -174,7 +174,7 @@ const BloodBankSignup = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-455">
                     <Mail className="h-4 w-4" />
                   </span>
                   <input
@@ -184,7 +184,7 @@ const BloodBankSignup = () => {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="e.g. contact@bloodbank.org"
-                    className="block w-full pl-9 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-9 pr-3.5 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark"
                   />
                 </div>
               </div>
@@ -194,7 +194,7 @@ const BloodBankSignup = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-455">
                     <Lock className="h-4 w-4" />
                   </span>
                   <input
@@ -204,7 +204,7 @@ const BloodBankSignup = () => {
                     value={formData.password}
                     onChange={handleChange}
                     placeholder="••••••••"
-                    className="block w-full pl-9 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-9 pr-3.5 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark"
                   />
                 </div>
               </div>
@@ -214,7 +214,7 @@ const BloodBankSignup = () => {
                   Contact Phone
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-455">
                     <Phone className="h-4 w-4" />
                   </span>
                   <input
@@ -224,7 +224,7 @@ const BloodBankSignup = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="e.g. +91 9876543210"
-                    className="block w-full pl-9 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-9 pr-3.5 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark font-mono"
                   />
                 </div>
               </div>
@@ -232,7 +232,7 @@ const BloodBankSignup = () => {
 
             {/* Location & Threshold Info */}
             <div className="space-y-4">
-              <h3 className="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2">
+              <h3 className="text-xxs font-black text-gray-400 uppercase tracking-widest border-b border-soft-border pb-2">
                 2. Location & Settings
               </h3>
 
@@ -241,7 +241,7 @@ const BloodBankSignup = () => {
                   Street Address
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-455">
                     <MapPin className="h-4 w-4" />
                   </span>
                   <input
@@ -251,7 +251,7 @@ const BloodBankSignup = () => {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="e.g. 12 Main St, Sector 4"
-                    className="block w-full pl-9 pr-3.5 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-9 pr-3.5 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark"
                   />
                 </div>
               </div>
@@ -268,7 +268,7 @@ const BloodBankSignup = () => {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder="e.g. Bangalore"
-                    className="block w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full px-3 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark"
                   />
                 </div>
                 <div>
@@ -282,7 +282,7 @@ const BloodBankSignup = () => {
                     value={formData.lowStockThreshold}
                     onChange={handleChange}
                     placeholder="5"
-                    className="block w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full px-3 py-2.5 border border-soft-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 text-ink-dark font-mono font-bold"
                   />
                 </div>
               </div>
@@ -298,7 +298,7 @@ const BloodBankSignup = () => {
                     readOnly
                     placeholder="Click Map"
                     value={formData.lat}
-                    className="block w-full px-3 py-2.5 border border-gray-100 rounded-xl text-sm bg-gray-50 text-gray-500 focus:outline-none cursor-not-allowed"
+                    className="block w-full px-3 py-2.5 border border-soft-border rounded-xl text-sm bg-clinical-bg/50 text-gray-400 focus:outline-none cursor-not-allowed font-mono"
                   />
                 </div>
                 <div>
@@ -310,7 +310,7 @@ const BloodBankSignup = () => {
                     readOnly
                     placeholder="Click Map"
                     value={formData.lng}
-                    className="block w-full px-3 py-2.5 border border-gray-100 rounded-xl text-sm bg-gray-50 text-gray-500 focus:outline-none cursor-not-allowed"
+                    className="block w-full px-3 py-2.5 border border-soft-border rounded-xl text-sm bg-clinical-bg/50 text-gray-400 focus:outline-none cursor-not-allowed font-mono"
                   />
                 </div>
               </div>
@@ -318,28 +318,28 @@ const BloodBankSignup = () => {
           </div>
 
           {/* Map Picker */}
-          <div className="border border-gray-100 p-4 rounded-3xl bg-gray-50/50">
+          <div className="border border-soft-border p-4 rounded-3xl bg-clinical-bg/10">
             <MapPicker onChange={handleLocationChange} />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gray-900 hover:bg-gray-800 text-white font-extrabold py-3.5 px-4 rounded-2xl text-sm shadow-md hover:shadow-lg transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full bg-ink-dark hover:bg-ink-dark/95 text-white font-extrabold py-3.5 px-4 rounded-xl text-xs uppercase tracking-widest shadow-xs transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {loading ? 'Creating Account...' : 'Register Blood Bank'}
           </button>
         </form>
 
-        <div className="text-center text-xs font-semibold text-gray-500 mt-6 space-y-2">
+        <div className="text-center text-xxs font-black text-gray-400 mt-6 space-y-3 uppercase tracking-wider">
           <div>
             <span>Already registered? </span>
-            <Link to="/bloodbank/login" className="text-red-600 hover:text-red-700 hover:underline ml-1">
+            <Link to="/bloodbank/login" className="text-brand-red hover:text-brand-red/90 ml-1">
               Login here
             </Link>
           </div>
-          <div className="pt-2 border-t border-gray-100">
-            <Link to="/signup" className="text-gray-500 hover:text-red-600 transition duration-150">
+          <div className="pt-3 border-t border-soft-border">
+            <Link to="/signup" className="text-gray-500 hover:text-brand-red transition duration-150">
               Are you a Donor or Requester? Sign up here
             </Link>
           </div>

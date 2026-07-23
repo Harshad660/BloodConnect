@@ -173,18 +173,18 @@ const Search = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-clinical-bg">
       {/* Search Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-gray-100 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-soft-border pb-5">
         <div>
-          <h1 className="text-3xl font-black font-display text-gray-900 flex items-center space-x-2">
-            <span className="bg-red-100 text-red-600 p-1.5 rounded-lg">
+          <h1 className="text-3xl font-black font-display text-ink-dark flex items-center space-x-2.5">
+            <span className="bg-brand-red/10 text-brand-red p-2 rounded-xl">
               <SearchIcon className="h-6 w-6" />
             </span>
-            <span>Search Blood Donors</span>
+            <span>Geospatial Directory</span>
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Find active donors within your vicinity in real time. Use the map to select your coordinate anchor.
+          <p className="text-xs text-gray-500 mt-1 font-medium">
+            Locate verified active donors and registered blood bank units nearby. Click on the map to re-anchor your search coordinates.
           </p>
         </div>
 
@@ -192,63 +192,78 @@ const Search = () => {
           type="button"
           onClick={detectLocation}
           disabled={detectingGps}
-          className="flex items-center justify-center space-x-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm shadow transition duration-150 disabled:opacity-50"
+          className="flex items-center justify-center space-x-2 bg-brand-red hover:bg-brand-red/95 text-white font-extrabold px-5 py-3 rounded-xl text-xs shadow-sm transition duration-150 disabled:opacity-50"
         >
           <Navigation className={`h-4 w-4 ${detectingGps ? 'animate-spin' : ''}`} />
-          <span>{detectingGps ? 'Detecting Location...' : 'Use My GPS Location'}</span>
+          <span>{detectingGps ? 'Locating Anchor...' : 'Use My GPS Coordinates'}</span>
         </button>
       </div>
 
-      {/* Grid Layout: Left filter + results list, Right Map */}
+      {/* Grid Layout: Left filters/sidebar, Right Map */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Filters and List - 5 Columns */}
         <div className="lg:col-span-5 space-y-6">
           {/* Filters Card */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-150 space-y-4">
-            <h3 className="text-sm font-bold text-gray-800 flex items-center space-x-1.5">
-              <Sliders className="h-4 w-4 text-red-500" />
-              <span>Search Filters</span>
+          <div className="bg-white rounded-3xl p-6 shadow-xs border border-soft-border space-y-5">
+            <h3 className="text-xs font-bold text-ink-dark uppercase tracking-widest flex items-center space-x-2">
+              <Sliders className="h-4 w-4 text-brand-red" />
+              <span>Anchor Specifications</span>
             </h3>
 
             <form onSubmit={handleSearch} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                    Blood Group
-                  </label>
-                  <select
-                    value={bloodGroup}
-                    onChange={(e) => setBloodGroup(e.target.value)}
-                    className="block w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+              {/* Blood Group Tactile Selector Grid */}
+              <div>
+                <label className="block text-xxs font-black text-gray-500 uppercase tracking-widest mb-2">
+                  Target Blood Type *
+                </label>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setBloodGroup('')}
+                    className={`py-2 text-center text-xs font-mono rounded-lg border font-bold transition duration-150 ${
+                      bloodGroup === ''
+                        ? 'border-brand-red bg-brand-red/5 text-brand-red shadow-sm shadow-brand-red/10'
+                        : 'border-soft-border bg-white text-gray-500 hover:border-gray-300'
+                    }`}
                   >
-                    <option value="">All Groups</option>
-                    {BLOOD_GROUPS.map((bg) => (
-                      <option key={bg} value={bg}>
-                        {bg}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                    City Name
-                  </label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="e.g. Mumbai"
-                    className="block w-full px-3.5 py-2 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
-                  />
+                    ALL
+                  </button>
+                  {BLOOD_GROUPS.map((bg) => (
+                    <button
+                      key={bg}
+                      type="button"
+                      onClick={() => setBloodGroup(bg)}
+                      className={`py-2 text-center text-xs font-mono rounded-lg border font-bold transition duration-150 ${
+                        bloodGroup === bg
+                          ? 'border-brand-red bg-brand-red/5 text-brand-red shadow-sm shadow-brand-red/10'
+                          : 'border-soft-border bg-white text-gray-500 hover:border-gray-300'
+                      }`}
+                    >
+                      {bg}
+                    </button>
+                  ))}
                 </div>
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider">
-                    Radius Range (km)
+                <label className="block text-xxs font-black text-gray-500 uppercase tracking-widest mb-1.5">
+                  City Location Filter
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="e.g. Bangalore"
+                  className="block w-full px-4 py-2.5 border border-soft-border rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red transition duration-150 bg-clinical-bg/50"
+                />
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xxs font-black text-gray-500 uppercase tracking-widest">
+                    Search Radius (Perimeter)
                   </label>
-                  <span className="text-xs font-bold text-red-600">{radius} km</span>
+                  <span className="text-xs font-black text-brand-red bg-brand-red/5 px-2 py-0.5 rounded-md font-mono">{radius} KM</span>
                 </div>
                 <input
                   type="range"
@@ -256,16 +271,16 @@ const Search = () => {
                   max="100"
                   value={radius}
                   onChange={(e) => setRadius(parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+                  className="w-full h-2 bg-clinical-bg rounded-lg appearance-none cursor-pointer accent-brand-red"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-xl text-sm shadow transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
+                className="w-full bg-ink-dark hover:bg-ink-dark/95 text-white font-extrabold py-3 px-4 rounded-xl text-xs tracking-wider uppercase shadow transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
               >
-                <span>Apply & Search</span>
+                <span>Synchronize Query</span>
               </button>
             </form>
           </div>
@@ -273,38 +288,38 @@ const Search = () => {
           {/* Results List */}
           <div className="space-y-4">
             {/* Tab Selector */}
-            <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-250/60">
+            <div className="flex bg-white/70 p-1 rounded-xl border border-soft-border">
               <button
                 type="button"
                 onClick={() => setSearchTab('donors')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition duration-150 ${
-                  searchTab === 'donors' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500'
+                className={`flex-1 py-2 text-xxs tracking-wider uppercase font-extrabold rounded-lg transition duration-150 ${
+                  searchTab === 'donors' ? 'bg-ink-dark text-white shadow-xs' : 'text-gray-500 hover:text-ink-dark'
                 }`}
               >
-                Donors ({donors.length})
+                Available Donors ({donors.length})
               </button>
               <button
                 type="button"
                 onClick={() => setSearchTab('banks')}
-                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition duration-150 ${
-                  searchTab === 'banks' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500'
+                className={`flex-1 py-2 text-xxs tracking-wider uppercase font-extrabold rounded-lg transition duration-150 ${
+                  searchTab === 'banks' ? 'bg-ink-dark text-white shadow-xs' : 'text-gray-500 hover:text-ink-dark'
                 }`}
               >
-                Blood Banks ({bloodBanks.length})
+                Stocked Banks ({bloodBanks.length})
               </button>
             </div>
 
-            <h3 className="text-sm font-bold text-gray-800 flex items-center justify-between">
-              <span>{searchTab === 'donors' ? 'Matching Donors' : 'Nearby Blood Banks'}</span>
+            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center justify-between px-1">
+              <span>{searchTab === 'donors' ? 'Nearby Verified Donors' : 'Nearby Stock Offers'}</span>
               {gpsDetected && (
-                <span className="text-xxs text-gray-400 font-normal italic">
-                  Distance from blue pin
+                <span className="text-[10px] text-brand-red font-medium lowercase font-mono">
+                  distance calculated from pin anchor
                 </span>
               )}
             </h3>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs">
+              <div className="bg-sos-red/10 border border-sos-red/35 text-sos-red px-4 py-3 rounded-xl text-xs font-semibold">
                 {error}
               </div>
             )}
@@ -312,62 +327,62 @@ const Search = () => {
             <div className="space-y-3 max-h-[30rem] overflow-y-auto pr-2">
               {loading ? (
                 <div className="flex justify-center items-center py-12">
-                  <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-8 h-8 border-2 border-brand-red border-t-transparent rounded-full animate-spin"></div>
                 </div>
               ) : searchTab === 'donors' ? (
                 donors.length === 0 ? (
-                  <div className="bg-white rounded-2xl p-8 border border-gray-150 text-center text-gray-400 text-sm">
-                    No available matching donors found. Try increasing the search radius or expanding group filters.
+                  <div className="bg-white rounded-2xl p-8 border border-soft-border text-center text-gray-400 text-xs font-medium">
+                    No matching active donors found within this perimeter. Expand your radius range or verify type requirements.
                   </div>
                 ) : (
                   donors.map((donor) => (
                     <div
                       key={donor._id}
-                      className="bg-white p-4 rounded-2xl shadow-sm border border-gray-150 hover:border-red-200 transition duration-150 flex justify-between items-start"
+                      className="bg-white p-4 rounded-2xl shadow-xs border border-soft-border hover:border-brand-red/30 transition duration-150 flex justify-between items-start"
                     >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center space-x-2">
-                          <span className="h-7 w-7 bg-red-100 text-red-600 rounded-full flex items-center justify-center font-bold text-xs uppercase">
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2.5">
+                          <span className={`wristband-badge ${donor.isVerified ? 'verified' : ''} font-mono font-bold text-xs`}>
                             {donor.bloodGroup}
                           </span>
                           <div>
-                            <h4 className="text-sm font-bold text-gray-800 flex items-center">
+                            <h4 className="text-sm font-extrabold text-ink-dark flex items-center">
                               <span>{donor.name}</span>
                               {donor.isVerified && (
-                                <ShieldCheck className="h-3.5 w-3.5 text-green-600 fill-green-50 ml-1.5" title="Verified Donor" />
+                                <ShieldCheck className="h-3.5 w-3.5 text-trust-teal fill-trust-teal/10 ml-1" />
                               )}
                             </h4>
-                            <p className="text-xxs text-gray-400">
+                            <p className="text-[10px] text-gray-400 font-mono">
                               {donor.city}, {donor.pincode}
                             </p>
                           </div>
                         </div>
                         
                         {donor.lastDonationDate ? (
-                          <p className="text-xxs text-gray-500 font-medium">
+                          <p className="text-[10px] text-gray-500 font-semibold font-mono">
                             Last Donation: {new Date(donor.lastDonationDate).toLocaleDateString()}
                           </p>
                         ) : (
-                          <p className="text-xxs text-gray-400 italic">No recent donation logged</p>
+                          <p className="text-[10px] text-gray-400 italic">No recent donation logged</p>
                         )}
                       </div>
 
-                      <div className="text-right space-y-1">
+                      <div className="text-right space-y-1.5">
                         {donor.distance !== null ? (
-                          <span className="inline-block bg-red-50 text-red-700 font-extrabold text-xxs px-2.5 py-1 rounded-full border border-red-100">
+                          <span className="inline-block bg-brand-red/5 text-brand-red font-black text-xxs px-2.5 py-0.5 rounded-full border border-brand-red/10 font-mono">
                             {donor.distance} km away
                           </span>
                         ) : (
-                          <span className="inline-block bg-gray-50 text-gray-600 font-bold text-xxs px-2.5 py-1 rounded-full">
+                          <span className="inline-block bg-clinical-bg text-gray-600 font-bold text-xxs px-2.5 py-0.5 rounded-full border border-soft-border">
                             City Area
                           </span>
                         )}
 
                         <a
                           href={`tel:${donor.phone}`}
-                          className="flex items-center justify-end text-xxs text-gray-500 hover:text-red-600 font-semibold pt-1"
+                          className="flex items-center justify-end text-[10px] text-gray-500 hover:text-brand-red font-black pt-1"
                         >
-                          <Phone className="h-3 w-3 mr-1" />
+                          <Phone className="h-3 w-3 mr-1 text-brand-red" />
                           <span>{donor.phone}</span>
                         </a>
                       </div>
@@ -376,8 +391,8 @@ const Search = () => {
                 )
               ) : (
                 bloodBanks.length === 0 ? (
-                  <div className="bg-white rounded-2xl p-8 border border-gray-150 text-center text-gray-400 text-sm">
-                    No matching blood banks found with this group in stock.
+                  <div className="bg-white rounded-2xl p-8 border border-soft-border text-center text-gray-400 text-xs font-medium">
+                    No matching blood bank units found.
                   </div>
                 ) : (
                   bloodBanks.map((bank) => {
@@ -387,47 +402,47 @@ const Search = () => {
                     return (
                       <div
                         key={bank._id}
-                        className="bg-white p-4 rounded-2xl shadow-sm border border-gray-150 hover:border-red-200 transition duration-150 flex justify-between items-start"
+                        className="bg-white p-4 rounded-2xl shadow-xs border border-soft-border hover:border-brand-red/30 transition duration-150 flex justify-between items-start"
                       >
-                        <div className="space-y-1.5">
-                          <div className="flex items-center space-x-2">
-                            <span className="h-7 w-7 bg-red-800 text-white rounded-full flex items-center justify-center font-bold text-xs uppercase">
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2.5">
+                            <span className="h-7 w-7 bg-ink-dark/10 text-ink-dark rounded-lg flex items-center justify-center font-bold text-xs uppercase">
                               🏦
                             </span>
                             <div>
-                              <h4 className="text-sm font-bold text-gray-800 flex items-center">
+                              <h4 className="text-sm font-extrabold text-ink-dark flex items-center">
                                 <span>{bank.name}</span>
                                 {bank.isVerified && (
-                                  <ShieldCheck className="h-3.5 w-3.5 text-green-600 fill-green-50 ml-1.5" title="Verified Blood Bank" />
+                                  <ShieldCheck className="h-3.5 w-3.5 text-trust-teal fill-trust-teal/10 ml-1" />
                                 )}
                               </h4>
-                              <p className="text-xxs text-gray-400">
+                              <p className="text-[10px] text-gray-400 font-mono">
                                 {bank.address}, {bank.city}
                               </p>
                             </div>
                           </div>
                           
-                          <p className="text-xxs text-red-600 font-extrabold">
-                            In Stock: {unitsCount} units of {bloodGroup || 'O+'}
+                          <p className="text-[10px] text-brand-red font-black font-mono">
+                            Stock: {unitsCount} units of {bloodGroup || 'O+'}
                           </p>
                         </div>
 
-                        <div className="text-right space-y-1">
+                        <div className="text-right space-y-1.5">
                           {bank.distance !== null ? (
-                            <span className="inline-block bg-red-50 text-red-700 font-extrabold text-xxs px-2.5 py-1 rounded-full border border-red-100">
+                            <span className="inline-block bg-brand-red/5 text-brand-red font-black text-xxs px-2.5 py-0.5 rounded-full border border-brand-red/10 font-mono">
                               {bank.distance} km away
                             </span>
                           ) : (
-                            <span className="inline-block bg-gray-50 text-gray-600 font-bold text-xxs px-2.5 py-1 rounded-full">
+                            <span className="inline-block bg-clinical-bg text-gray-600 font-bold text-xxs px-2.5 py-0.5 rounded-full border border-soft-border">
                               City Area
                             </span>
                           )}
 
                           <a
                             href={`tel:${bank.phone}`}
-                            className="flex items-center justify-end text-xxs text-gray-500 hover:text-red-600 font-semibold pt-1"
+                            className="flex items-center justify-end text-[10px] text-gray-500 hover:text-brand-red font-black pt-1"
                           >
-                            <Phone className="h-3 w-3 mr-1" />
+                            <Phone className="h-3 w-3 mr-1 text-brand-red" />
                             <span>{bank.phone}</span>
                           </a>
                         </div>
@@ -441,18 +456,18 @@ const Search = () => {
         </div>
 
         {/* Map Display Panel - 7 Columns */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-4 shadow-sm border border-gray-150 space-y-3">
-          <div className="flex justify-between items-center text-xs font-bold text-gray-700 px-1">
-            <span className="flex items-center space-x-1">
-              <MapPin className="h-4 w-4 text-red-600" />
-              <span>Donor Geospatial Map</span>
+        <div className="lg:col-span-7 bg-white rounded-3xl p-4 shadow-xs border border-soft-border space-y-3">
+          <div className="flex justify-between items-center text-xs font-bold text-ink-dark px-1">
+            <span className="flex items-center space-x-1.5 uppercase tracking-wider text-xxs text-gray-400">
+              <MapPin className="h-4 w-4 text-brand-red" />
+              <span>Radial Geospatial Radar</span>
             </span>
-            <span className="text-xxs text-gray-400 font-normal italic">
-              * Click map to adjust search center
+            <span className="text-[10px] text-gray-400 font-normal italic">
+              * click map to set center anchor coordinates
             </span>
           </div>
 
-          <div className="h-[44rem] w-full rounded-2xl overflow-hidden border border-gray-100 shadow-inner relative z-10">
+          <div className="h-[44rem] w-full rounded-2xl overflow-hidden border border-soft-border shadow-inner relative z-10">
             <MapContainer
               center={[reqCoords.lat, reqCoords.lng]}
               zoom={12}
@@ -468,10 +483,10 @@ const Search = () => {
               <Marker position={[reqCoords.lat, reqCoords.lng]} icon={blueRequesterIcon}>
                 <Popup>
                   <div className="text-xs space-y-1 text-center font-medium">
-                    <p className="font-bold text-blue-600">Search Reference Center</p>
-                    <p className="text-xxs text-gray-400">
-                      Latitude: {reqCoords.lat.toFixed(4)}<br />
-                      Longitude: {reqCoords.lng.toFixed(4)}
+                    <p className="font-extrabold text-blue-600">Search Anchor Reference</p>
+                    <p className="text-[10px] text-gray-400 font-mono">
+                      Lat: {reqCoords.lat.toFixed(4)}<br />
+                      Lng: {reqCoords.lng.toFixed(4)}
                     </p>
                   </div>
                 </Popup>
@@ -486,25 +501,25 @@ const Search = () => {
                 return (
                   <Marker key={donor._id} position={[lat, lng]} icon={redDonorIcon}>
                     <Popup>
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center space-x-1.5 border-b border-gray-100 pb-1">
-                          <span className="bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold text-xxs">
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex items-center space-x-1.5 border-b border-soft-border pb-1">
+                          <span className="wristband-badge font-bold font-mono">
                             {donor.bloodGroup}
                           </span>
-                          <span className="font-bold text-gray-800">{donor.name}</span>
+                          <span className="font-extrabold text-ink-dark">{donor.name}</span>
                         </div>
-                        <p className="text-xxs text-gray-500">Contact: {donor.phone}</p>
+                        <p className="text-[10px] text-gray-500 font-mono">Phone: {donor.phone}</p>
                         {donor.distance !== null && (
-                          <p className="text-xxs text-red-600 font-bold">
+                          <p className="text-[10px] text-brand-red font-black font-mono">
                             Distance: {donor.distance} km
                           </p>
                         )}
-                        <p className="text-xxs text-gray-400">City: {donor.city}</p>
+                        <p className="text-[10px] text-gray-400">City: {donor.city}</p>
                         <a
                           href={`tel:${donor.phone}`}
-                          className="mt-1.5 block w-full bg-red-600 hover:bg-red-700 text-white text-center font-bold py-1 rounded text-xxs transition duration-150"
+                          className="mt-1.5 block w-full bg-brand-red hover:bg-brand-red/90 text-white text-center font-extrabold py-1.5 rounded-lg text-xxs transition duration-150"
                         >
-                          Call Now
+                          Call Donor
                         </a>
                       </div>
                     </Popup>
@@ -524,25 +539,25 @@ const Search = () => {
                 return (
                   <Marker key={bank._id} position={[lat, lng]} icon={greenBankIcon}>
                     <Popup>
-                      <div className="space-y-1 text-xs">
-                        <div className="flex items-center space-x-1.5 border-b border-gray-100 pb-1">
-                          <span className="bg-red-800 text-white px-1.5 py-0.5 rounded font-bold text-xxs">
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex items-center space-x-1.5 border-b border-soft-border pb-1">
+                          <span className="h-5 w-5 bg-ink-dark text-white rounded flex items-center justify-center font-bold text-[10px]">
                             🏦
                           </span>
-                          <span className="font-bold text-gray-800">{bank.name}</span>
+                          <span className="font-extrabold text-ink-dark">{bank.name}</span>
                         </div>
-                        <p className="text-xxs font-extrabold text-red-600">
-                          In Stock: {unitsCount} units of {bloodGroup || 'O+'}
+                        <p className="text-[10px] font-black text-brand-red font-mono">
+                          Stock: {unitsCount} units of {bloodGroup || 'O+'}
                         </p>
-                        <p className="text-xxs text-gray-500">Address: {bank.address}, {bank.city}</p>
+                        <p className="text-[10px] text-gray-500">Address: {bank.address}, {bank.city}</p>
                         {bank.distance !== null && (
-                          <p className="text-xxs text-gray-600 font-bold">
+                          <p className="text-[10px] text-gray-600 font-bold font-mono">
                             Distance: {bank.distance} km
                           </p>
                         )}
                         <a
                           href={`tel:${bank.phone}`}
-                          className="mt-1.5 block w-full bg-gray-900 hover:bg-gray-800 text-white text-center font-bold py-1 rounded text-xxs transition duration-150"
+                          className="mt-1.5 block w-full bg-ink-dark hover:bg-ink-dark/95 text-white text-center font-extrabold py-1.5 rounded-lg text-xxs transition duration-150"
                         >
                           Call Bank
                         </a>
@@ -562,4 +577,4 @@ const Search = () => {
   );
 };
 
-export default Search;
+export default Search;earch;

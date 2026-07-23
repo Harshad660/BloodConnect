@@ -4,11 +4,11 @@
 
 @layer base {
   body {
-    @apply antialiased font-sans text-gray-900 bg-gray-50/50;
+    @apply antialiased font-sans text-ink-dark bg-clinical-bg;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-display tracking-tight;
+    @apply font-display tracking-tight text-ink-dark;
   }
 }
 
@@ -26,7 +26,49 @@
 
 /* Glassmorphism utility card styling */
 .glass-panel {
-  @apply bg-white/85 backdrop-blur-md border border-white/40 shadow-sm;
+  @apply bg-white/90 backdrop-blur-md border border-white/50 shadow-sm;
+}
+
+/* Wristband Badge style */
+.wristband-badge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #EBEFF3;
+  background-color: #FFFFFF;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #12161A;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+.wristband-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background-color: #C81E3A;
+}
+.wristband-badge.verified::before {
+  background-color: #0D7F6E;
+}
+.wristband-badge.sos::before {
+  background-color: #F02849;
+}
+
+/* ECG divider divider wave using inline SVG */
+.ecg-divider {
+  height: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 24' preserveAspectRatio='none'%3E%3Cpath d='M0,12 L40,12 L44,8 L48,16 L52,0 L56,24 L60,10 L64,14 L68,12 L100,12' fill='none' stroke='%23C81E3A' stroke-width='1.5' opacity='0.25'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 150px 24px;
+  border: none;
+  margin: 1.5rem 0;
 }
 
 /* Leaflet maps visual optimization */
@@ -39,13 +81,13 @@
 }
 .leaflet-bar a {
   background-color: #fff !important;
-  color: #1f2937 !important;
-  border-bottom: 1px solid #f3f4f6 !important;
+  color: #12161A !important;
+  border-bottom: 1px solid #EBEFF3 !important;
   transition: all 150ms;
 }
 .leaflet-bar a:hover {
   background-color: #f9fafb !important;
-  color: #ef4444 !important;
+  color: #C81E3A !important;
 }
 .leaflet-bar a:first-child {
   border-top-left-radius: 8px !important;
@@ -59,7 +101,7 @@
 /* Fade in/out keyframe animation rules for custom toast alert triggers */
 @keyframes enter {
   0% {
-    transform: scale(0.9);
+    transform: scale(0.95);
     opacity: 0;
   }
   100% {
@@ -74,7 +116,7 @@
     opacity: 1;
   }
   100% {
-    transform: scale(0.9);
+    transform: scale(0.95);
     opacity: 0;
   }
 }

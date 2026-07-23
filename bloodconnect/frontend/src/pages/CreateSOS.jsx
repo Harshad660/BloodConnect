@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MapPicker from '../components/MapPicker';
 import api from '../services/api';
-import { Heart, AlertTriangle, MapPin, Phone, Building2, Sliders, ArrowRight } from 'lucide-react';
+import { AlertTriangle, MapPin, Phone, Building2, Sliders, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const URGENCY_LEVELS = [
-  { value: 'low', label: 'Low (Scheduled/Backup)', color: 'border-blue-200 text-blue-700 bg-blue-50/50' },
-  { value: 'medium', label: 'Medium (Required within 24h)', color: 'border-orange-200 text-orange-700 bg-orange-50/50' },
-  { value: 'critical', label: 'Critical (URGENT - Required Instantly)', color: 'border-red-200 text-red-700 bg-red-50' },
+  { value: 'low', label: 'Backup / Scheduled', description: 'No immediate danger, required as pre-planned backup.', color: 'border-soft-border text-gray-500 bg-white' },
+  { value: 'medium', label: 'Elevated Need (24h)', description: 'Required within 24 hours for surgery or replenishment.', color: 'border-amber-200 text-amber-800 bg-amber-50/20' },
+  { value: 'critical', label: 'Vivid Critical (Urgent)', description: 'Life-threatening emergency. Required immediately.', color: 'border-sos-red/30 text-sos-red bg-sos-red/5' },
 ];
 
 const CreateSOS = () => {
@@ -51,12 +51,12 @@ const CreateSOS = () => {
     const { bloodGroupNeeded, urgency, hospitalName, contactPhone, radius, lat, lng } = formData;
 
     if (!bloodGroupNeeded || !urgency || !hospitalName || !contactPhone) {
-      setErrorMsg('Please fill in all details.');
+      setErrorMsg('Please specify all details before broadcasting.');
       return;
     }
 
     if (lat === '' || lng === '') {
-      setErrorMsg('Please pinpoint the hospital location on the map.');
+      setErrorMsg('Please select the hospital coordinates on the map.');
       return;
     }
 
@@ -75,7 +75,7 @@ const CreateSOS = () => {
 
       if (res.data.success) {
         const count = res.data.notifiedCount || 0;
-        toast.success(`SOS Broadcast sent! ${count} matching donors notified near hospital.`, {
+        toast.success(`SOS Broadcast initiated! ${count} matching donors targeted in range.`, {
           duration: 7000,
         });
         navigate('/requester/dashboard');
@@ -92,90 +92,97 @@ const CreateSOS = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-150 relative">
-        <div className="absolute top-0 inset-x-0 h-2 bg-red-600 rounded-t-3xl"></div>
+      <div className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-soft-border relative overflow-hidden">
+        
+        {/* Urgent indicator top strip */}
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-sos-red"></div>
 
-        <div className="flex flex-col items-center text-center pb-6 border-b border-gray-100 mb-8">
-          <span className="bg-red-100 text-red-600 p-3.5 rounded-2xl shadow-sm mb-4 animate-bounce">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
+        <div className="flex flex-col items-center text-center pb-6 border-b border-soft-border mb-8">
+          <span className="bg-sos-red/10 text-sos-red p-3.5 rounded-2xl mb-4 relative flex h-14 w-14 items-center justify-center">
+            <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-sos-red/15 opacity-75"></span>
+            <AlertTriangle className="h-7 w-7 text-sos-red relative" />
           </span>
-          <h1 className="text-3xl font-black font-display tracking-tight text-gray-900">
+          <h1 className="text-3xl font-black font-display tracking-tight text-ink-dark">
             Emergency SOS Broadcast
           </h1>
-          <p className="mt-2 text-sm text-gray-500 max-w-md">
-            Broadcast an instant emergency alert. All online donors with matching blood groups in the specified radius will receive real-time popups.
+          <p className="mt-2 text-xs text-gray-500 max-w-md font-medium leading-relaxed">
+            Broadcast a real-time geo-located matching request. This triggers instant push alerts to matching online donors and institutions within your specified perimeter.
           </p>
         </div>
 
         {errorMsg && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-xl text-xs font-semibold flex items-start space-x-2 mb-6 animate-enter">
-            <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-sos-red/10 border border-sos-red/35 text-sos-red px-4 py-3.5 rounded-xl text-xs font-bold flex items-start space-x-2 mb-6 animate-enter">
+            <AlertTriangle className="h-4 w-4 text-sos-red flex-shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Details panel */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xxs font-bold text-red-600 uppercase tracking-wider mb-2">
-                  Blood Group Required *
-                </label>
-                <select
-                  name="bloodGroupNeeded"
-                  required
-                  value={formData.bloodGroupNeeded}
-                  onChange={handleChange}
-                  className="block w-full px-3.5 py-3 border border-red-200 bg-red-50/20 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
-                >
-                  <option value="">Select Required Group</option>
-                  {BLOOD_GROUPS.map((bg) => (
-                    <option key={bg} value={bg}>
-                      {bg}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Urgency Priority *
-                </label>
-                <div className="space-y-2">
-                  {URGENCY_LEVELS.map((level) => (
-                    <label
-                      key={level.value}
-                      className={`flex items-center justify-between p-3.5 border rounded-xl cursor-pointer text-xs transition font-semibold hover:border-gray-300 ${
-                        formData.urgency === level.value
-                          ? `${level.color} border-red-600 ring-1 ring-red-500/25`
-                          : 'border-gray-200 bg-white text-gray-600'
-                      }`}
-                    >
-                      <span>{level.label}</span>
-                      <input
-                        type="radio"
-                        name="urgency"
-                        value={level.value}
-                        checked={formData.urgency === level.value}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500 accent-red-600"
-                      />
-                    </label>
-                  ))}
-                </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          
+          {/* Section 1: Blood Group and Urgency */}
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xxs font-black text-gray-500 uppercase tracking-widest mb-3">
+                1. Blood Type Required *
+              </label>
+              
+              {/* Tactile Selector Grid */}
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {BLOOD_GROUPS.map((bg) => (
+                  <button
+                    key={bg}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, bloodGroupNeeded: bg }))}
+                    className={`py-3.5 text-center text-sm font-mono rounded-xl border font-bold transition duration-150 ${
+                      formData.bloodGroupNeeded === bg
+                        ? 'border-brand-red bg-brand-red/5 text-brand-red shadow-sm shadow-brand-red/10'
+                        : 'border-soft-border bg-white text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    {bg}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Hospital details panel */}
-            <div className="space-y-4">
+            <div>
+              <label className="block text-xxs font-black text-gray-500 uppercase tracking-widest mb-3">
+                2. Urgency Level *
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {URGENCY_LEVELS.map((level) => (
+                  <button
+                    key={level.value}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, urgency: level.value }))}
+                    className={`p-4 border rounded-2xl cursor-pointer text-left transition flex flex-col justify-between ${
+                      formData.urgency === level.value
+                        ? `${level.color} border-brand-red ring-1 ring-brand-red/20`
+                        : 'border-soft-border bg-white text-gray-500 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className="text-xs font-extrabold uppercase tracking-wide block">{level.label}</span>
+                    <span className="text-[10px] text-gray-400 mt-1 font-medium leading-relaxed">{level.description}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Hospital and Location details */}
+          <div className="space-y-5 pt-6 border-t border-soft-border">
+            <h3 className="text-xxs font-black text-gray-500 uppercase tracking-widest">
+              3. Hospital Coordination Details *
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Hospital Name *
+                <label className="block text-[10px] font-bold text-gray-500 mb-1.5">
+                  Hospital Name
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-                    <Building2 className="h-5 w-5" />
+                    <Building2 className="h-4 w-4" />
                   </span>
                   <input
                     name="hospitalName"
@@ -183,19 +190,19 @@ const CreateSOS = () => {
                     required
                     value={formData.hospitalName}
                     onChange={handleChange}
-                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
+                    className="block w-full pl-10 pr-4 py-3 border border-soft-border rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30"
                     placeholder="e.g. City General Hospital"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider mb-2">
-                  Contact Phone *
+                <label className="block text-[10px] font-bold text-gray-500 mb-1.5">
+                  Contact Phone
                 </label>
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-                    <Phone className="h-5 w-5" />
+                    <Phone className="h-4 w-4" />
                   </span>
                   <input
                     name="contactPhone"
@@ -203,49 +210,49 @@ const CreateSOS = () => {
                     required
                     value={formData.contactPhone}
                     onChange={handleChange}
-                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-600"
-                    placeholder="Coordination phone number"
+                    className="block w-full pl-10 pr-4 py-3 border border-soft-border rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30"
+                    placeholder="Direct coordination phone number"
                   />
                 </div>
               </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="block text-xxs font-bold text-gray-500 uppercase tracking-wider">
-                    Target Alert Radius Range
-                  </label>
-                  <span className="text-xs font-bold text-red-600 flex items-center">
-                    <Sliders className="h-3.5 w-3.5 mr-1" />
-                    <span>{formData.radius} km</span>
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  name="radius"
-                  min="2"
-                  max="50"
-                  value={formData.radius}
-                  onChange={handleChange}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                />
-              </div>
-
-              {formData.lat && formData.lng && (
-                <div className="bg-red-50 text-red-800 text-xxs font-bold p-3.5 rounded-xl border border-red-100 flex items-center justify-between animate-enter">
-                  <span className="flex items-center space-x-1">
-                    <MapPin className="h-3.5 w-3.5" />
-                    <span>Hospital Coordinates Anchored</span>
-                  </span>
-                  <span>
-                    Lat: {parseFloat(formData.lat).toFixed(4)}, Lng: {parseFloat(formData.lng).toFixed(4)}
-                  </span>
-                </div>
-              )}
             </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-1.5">
+                <label className="block text-[10px] font-bold text-gray-500">
+                  Target Alert Radius
+                </label>
+                <span className="text-xs font-black text-brand-red bg-brand-red/5 px-2 py-0.5 rounded-md font-mono flex items-center">
+                  <Sliders className="h-3.5 w-3.5 mr-1" />
+                  <span>{formData.radius} KM</span>
+                </span>
+              </div>
+              <input
+                type="range"
+                name="radius"
+                min="2"
+                max="50"
+                value={formData.radius}
+                onChange={handleChange}
+                className="w-full h-2 bg-clinical-bg rounded-lg appearance-none cursor-pointer accent-brand-red"
+              />
+            </div>
+
+            {formData.lat && formData.lng && (
+              <div className="bg-trust-teal/5 text-trust-teal text-xxs font-black p-3.5 rounded-xl border border-trust-teal/15 flex items-center justify-between animate-enter">
+                <span className="flex items-center space-x-1.5">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span>Hospital Coordinates Anchored</span>
+                </span>
+                <span className="font-mono">
+                  Lat: {parseFloat(formData.lat).toFixed(4)}, Lng: {parseFloat(formData.lng).toFixed(4)}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Map Section */}
-          <div className="pt-4 border-t border-gray-100">
+          <div className="pt-6 border-t border-soft-border">
             <MapPicker
               onChange={handleLocationChange}
               initialLat={formData.lat}
@@ -257,13 +264,13 @@ const CreateSOS = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-extrabold py-4 px-4 rounded-xl text-sm shadow-md hover:shadow-lg transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full bg-sos-red hover:bg-sos-red/95 text-white font-extrabold py-4 px-4 rounded-xl text-xs tracking-widest uppercase shadow-md transition duration-150 flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <span className="flex items-center space-x-1">
-                  <span>Broadcast Urgent SOS</span>
+                <span className="flex items-center space-x-1.5">
+                  <span>Send SOS Request</span>
                   <ArrowRight className="h-4 w-4" />
                 </span>
               )}

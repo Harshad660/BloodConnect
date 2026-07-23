@@ -14,6 +14,12 @@ export default {
         'xxs': '0.7rem',
       },
       colors: {
+        'brand-red': '#C81E3A',      // Clinical deep brand red
+        'sos-red': '#F02849',        // High urgency SOS warning red
+        'trust-teal': '#0D7F6E',     // Desaturated green/teal for verified and active status
+        'ink-dark': '#12161A',       // Rich charcoal body/heading text
+        'clinical-bg': '#F6F8FA',    // Clean medical neutral backdrop
+        'soft-border': '#EBEFF3',    // Light divider border
         blood: {
           50: '#fff1f2',
           100: '#ffe4e6',
@@ -30,6 +36,7 @@ export default {
       },
       animation: {
         'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'ping-slow': 'ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite',
       }
     },
   },
