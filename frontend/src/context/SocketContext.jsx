@@ -28,8 +28,8 @@ export const SocketProvider = ({ children }) => {
 
     setSocket(newSocket);
 
-    // Register user ID with Socket
-    newSocket.emit('join', user._id);
+    // Register user ID and role with Socket
+    newSocket.emit('join', { userId: user._id, role: user.role });
 
     // Listen for new SOS request (for matching donors)
     newSocket.on('sos:new', (sosData) => {
@@ -53,13 +53,13 @@ export const SocketProvider = ({ children }) => {
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm font-semibold text-white">
-                  URGENT: {sosData.bloodGroupNeeded} Required!
+                  URGENT: {sosData.bloodGroupNeeded} ({sosData.unitsRequired || 1} Unit{sosData.unitsRequired > 1 ? 's' : ''}) Required!
                 </p>
                 <p className="mt-1 text-xs text-red-100">
                   Hospital: {sosData.hospitalName} ({sosData.urgency} priority)
                 </p>
                 <p className="mt-1 text-xs text-red-200">
-                  Contact: {sosData.contactPhone}
+                  Requester: {sosData.requester?.name || 'Emergency Patient'} • Phone: {sosData.contactPhone}
                 </p>
               </div>
             </div>
@@ -68,7 +68,6 @@ export const SocketProvider = ({ children }) => {
             <button
               onClick={() => {
                 toast.dismiss(t.id);
-                // Action logic - redirects or opens dashboard
                 window.location.href = '/donor/dashboard';
               }}
               className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-white hover:bg-red-700 focus:outline-none"
@@ -100,13 +99,13 @@ export const SocketProvider = ({ children }) => {
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm font-semibold text-white">
-                  BLOOD BANK SOS: {sosData.bloodGroupNeeded} Required!
+                  BLOOD BANK SOS: {sosData.bloodGroupNeeded} ({sosData.unitsRequired || 1} Unit{sosData.unitsRequired > 1 ? 's' : ''}) Required!
                 </p>
                 <p className="mt-1 text-xs text-red-100">
                   Hospital: {sosData.hospitalName} ({sosData.urgency} priority)
                 </p>
                 <p className="mt-1 text-xs text-red-200">
-                  Requester: {sosData.requester.name} ({sosData.requester.phone})
+                  Requester: {sosData.requester?.name} ({sosData.contactPhone || sosData.requester?.phone})
                 </p>
               </div>
             </div>
@@ -171,6 +170,27 @@ export const SocketProvider = ({ children }) => {
       window.dispatchEvent(refreshEvent);
     });
 
+    // Listen for new admin SOS broadcasts
+    newSocket.on('sos:admin_new', (sosData) => {
+      console.log('Admin received real-time SOS broadcast:', sosData);
+      toast.success(
+        <div>
+          <span className="font-bold">ADMIN ALERT:</span> New SOS created by{' '}
+          <span className="underline">{sosData.requesterId?.name || 'Requester'}</span> ({sosData.bloodGroupNeeded})
+        </div>,
+        { icon: '🛡️', duration: 7000 }
+      );
+      const adminEvent = new CustomEvent('sos:admin_new_created', { detail: sosData });
+      window.dispatchEvent(adminEvent);
+    });
+
+    // Listen for admin real-time response updates
+    newSocket.on('sos:admin_update', (updateData) => {
+      console.log('Admin received real-time response update:', updateData);
+      const adminEvent = new CustomEvent('sos:admin_response_updated', { detail: updateData });
+      window.dispatchEvent(adminEvent);
+    });
+
     // Listen for low stock warnings (for blood banks)
     newSocket.on('inventory:low', (warnData) => {
       console.log('Received low stock warning via Socket:', warnData);
@@ -212,8 +232,14 @@ export const SocketProvider = ({ children }) => {
     }
   };
 
+  const offerStockSOS = (sosRequestId, unitsOffered) => {
+    if (socket) {
+      socket.emit('sos:offerStock', { sosRequestId, unitsOffered });
+    }
+  };
+
   return (
-    <SocketContext.Provider value={{ socket, incomingSOSAlerts, setIncomingSOSAlerts, respondToSOS }}>
+    <SocketContext.Provider value={{ socket, incomingSOSAlerts, setIncomingSOSAlerts, respondToSOS, offerStockSOS }}>
       {children}
     </SocketContext.Provider>
   );

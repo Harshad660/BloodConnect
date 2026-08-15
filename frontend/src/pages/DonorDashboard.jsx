@@ -101,6 +101,7 @@ const DonorDashboard = () => {
               _id: socketAlert._id,
               requester: socketAlert.requester,
               bloodGroupNeeded: socketAlert.bloodGroupNeeded,
+              unitsRequired: socketAlert.unitsRequired || 1,
               urgency: socketAlert.urgency,
               hospitalName: socketAlert.hospitalName,
               location: socketAlert.location,

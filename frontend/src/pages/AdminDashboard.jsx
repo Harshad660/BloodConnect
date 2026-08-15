@@ -14,10 +14,29 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     fetchData();
+
+    const handleNewAdminSOS = (e) => {
+      console.log('AdminDashboard received real-time new SOS:', e.detail);
+      setSOSRequests((prev) => [e.detail, ...prev]);
+    };
+
+    const handleUpdateAdminSOS = (e) => {
+      console.log('AdminDashboard received real-time SOS response update:', e.detail);
+      // Re-fetch SOS list silently to get full populated donor/bank response details
+      fetchData(true);
+    };
+
+    window.addEventListener('sos:admin_new_created', handleNewAdminSOS);
+    window.addEventListener('sos:admin_response_updated', handleUpdateAdminSOS);
+
+    return () => {
+      window.removeEventListener('sos:admin_new_created', handleNewAdminSOS);
+      window.removeEventListener('sos:admin_response_updated', handleUpdateAdminSOS);
+    };
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
+  const fetchData = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const [donorsRes, requestersRes, sosRes, banksRes] = await Promise.all([
         api.get('/admin/donors'),
@@ -40,9 +59,9 @@ const AdminDashboard = () => {
       }
     } catch (err) {
       console.error(err);
-      toast.error('Failed to load administration data.');
+      if (!silent) toast.error('Failed to load administration data.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -554,8 +573,8 @@ const AdminDashboard = () => {
                           <p className="text-[10px] text-gray-500">Contact: {req.contactPhone}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="bg-red-100 text-red-600 font-extrabold px-2.5 py-1 rounded text-xs">
-                            {req.bloodGroupNeeded}
+                          <span className="bg-red-100 text-red-600 font-extrabold px-2.5 py-1 rounded text-xs block w-max">
+                            {req.bloodGroupNeeded} ({req.unitsRequired || 1} Unit{req.unitsRequired > 1 ? 's' : ''})
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center">
@@ -571,8 +590,15 @@ const AdminDashboard = () => {
                             {req.urgency}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-center font-bold text-gray-800">
-                          {acceptedCount} / {totalMatches} Accepted
+                        <td className="px-6 py-4 text-center">
+                          <div className="font-bold text-gray-800 text-xs">
+                            Donors: {acceptedCount} / {totalMatches}
+                          </div>
+                          {req.bankOffers && req.bankOffers.length > 0 && (
+                            <div className="text-[10px] text-brand-red font-medium mt-0.5">
+                              Bank Offers: {req.bankOffers.length}
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span

@@ -19,6 +19,7 @@ const CreateSOS = () => {
     bloodGroupNeeded: '',
     urgency: 'critical', // default
     hospitalName: '',
+    unitsRequired: 1,
     contactPhone: '',
     radius: 10, // default 10km
     lat: '',
@@ -48,7 +49,7 @@ const CreateSOS = () => {
     e.preventDefault();
     setErrorMsg('');
 
-    const { bloodGroupNeeded, urgency, hospitalName, contactPhone, radius, lat, lng } = formData;
+    const { bloodGroupNeeded, urgency, hospitalName, unitsRequired, contactPhone, radius, lat, lng } = formData;
 
     if (!bloodGroupNeeded || !urgency || !hospitalName || !contactPhone) {
       setErrorMsg('Please specify all details before broadcasting.');
@@ -67,6 +68,7 @@ const CreateSOS = () => {
         bloodGroupNeeded,
         urgency,
         hospitalName,
+        unitsRequired: parseInt(unitsRequired) || 1,
         contactPhone,
         radius: parseFloat(radius),
         lat: parseFloat(lat),
@@ -175,7 +177,7 @@ const CreateSOS = () => {
               3. Hospital Coordination Details *
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-[10px] font-bold text-gray-500 mb-1.5">
                   Hospital Name
@@ -194,6 +196,22 @@ const CreateSOS = () => {
                     placeholder="e.g. City General Hospital"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-gray-500 mb-1.5">
+                  Required Units
+                </label>
+                <input
+                  name="unitsRequired"
+                  type="number"
+                  min="1"
+                  max="50"
+                  required
+                  value={formData.unitsRequired}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-3 border border-soft-border rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-red/10 focus:border-brand-red bg-clinical-bg/30 font-mono font-bold text-ink-dark"
+                />
               </div>
 
               <div>

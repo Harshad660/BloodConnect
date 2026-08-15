@@ -77,6 +77,7 @@ exports.getAllSOSRequests = async (req, res) => {
     const requests = await SOSRequest.find()
       .populate('requesterId', 'name email phone')
       .populate('respondedDonors.donorId', 'name phone email bloodGroup')
+      .populate('bankOffers.bloodBankId', 'name phone email')
       .sort({ createdAt: -1 });
 
     res.status(200).json({

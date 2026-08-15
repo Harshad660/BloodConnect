@@ -52,7 +52,7 @@ const sendFallbackEmail = async (to, subject, text) => {
 // @access  Private (Requester role preferred, but allowed for all authenticated users)
 exports.createSOS = async (req, res) => {
   try {
-    const { bloodGroupNeeded, urgency, hospitalName, lat, lng, contactPhone, radius } = req.body;
+    const { bloodGroupNeeded, urgency, hospitalName, unitsRequired, lat, lng, contactPhone, radius } = req.body;
 
     if (!bloodGroupNeeded || !urgency || !hospitalName || lat === undefined || lng === undefined || !contactPhone) {
       return res.status(400).json({ success: false, message: 'Please fill out all required fields' });
@@ -61,6 +61,7 @@ exports.createSOS = async (req, res) => {
     const latitude = parseFloat(lat);
     const longitude = parseFloat(lng);
     const searchRadius = parseFloat(radius) || 10; // Default 10km radius
+    const units = parseInt(unitsRequired) || 1;
 
     // Find all users who have an active pending SOS request
     const activeSOS = await SOSRequest.find({ status: 'pending' }).select('requesterId');
@@ -120,6 +121,7 @@ exports.createSOS = async (req, res) => {
       bloodGroupNeeded,
       urgency,
       hospitalName,
+      unitsRequired: units,
       location: {
         type: 'Point',
         coordinates: [longitude, latitude],
@@ -130,13 +132,33 @@ exports.createSOS = async (req, res) => {
       bankOffers: [], // Initial empty offers
     });
 
+    // Populate requester info for broadcasts
+    const fullSosRequest = await SOSRequest.findById(sosRequest._id).populate('requesterId', 'name email phone');
+
     // Retrieve active sockets mapping from the Express app instance
     const io = req.app.get('io');
     const onlineUsers = req.app.get('onlineUsers') || {};
 
+    const sosPayload = {
+      _id: fullSosRequest._id,
+      requester: {
+        _id: req.user._id,
+        name: req.user.name,
+        phone: req.user.phone,
+      },
+      bloodGroupNeeded,
+      unitsRequired: units,
+      urgency,
+      hospitalName,
+      location: fullSosRequest.location,
+      contactPhone,
+      status: 'pending',
+      createdAt: fullSosRequest.createdAt,
+    };
+
     // 4. Create notification records and notify each matching donor
     for (const donor of matchingDonors) {
-      const message = `URGENT: ${bloodGroupNeeded} blood needed at ${hospitalName} (${urgency} priority). Contact: ${contactPhone}`;
+      const message = `URGENT: ${units} unit(s) of ${bloodGroupNeeded} blood needed at ${hospitalName} (${urgency} priority). Contact: ${contactPhone}`;
 
       // Create Notification in DB
       await Notification.create({
@@ -148,32 +170,21 @@ exports.createSOS = async (req, res) => {
 
       const donorSocketId = onlineUsers[donor._id.toString()];
       if (donorSocketId && io) {
-        // Donor is online, send real-time socket event
-        io.to(donorSocketId).emit('sos:new', {
-          _id: sosRequest._id,
-          requester: {
-            name: req.user.name,
-            phone: req.user.phone,
-          },
-          bloodGroupNeeded,
-          urgency,
-          hospitalName,
-          location: sosRequest.location,
-          contactPhone,
-          status: 'pending',
-          createdAt: sosRequest.createdAt,
-        });
-        console.log(`Socket broadcasted SOS to donor: ${donor.name} (Socket ID: ${donorSocketId})`);
-      } else {
+        io.to(donorSocketId).emit('sos:new', sosPayload);
+      } else if (io) {
+        io.to(`user:${donor._id}`).emit('sos:new', sosPayload);
+      }
+
+      if (!donorSocketId) {
         // Donor is offline, send fallback email
-        const emailBody = `Hello ${donor.name},\n\nThere is an urgent emergency blood request near you.\n\nDetails:\n- Blood Needed: ${bloodGroupNeeded}\n- Hospital: ${hospitalName}\n- Urgency: ${urgency.toUpperCase()}\n- Contact: ${contactPhone}\n\nPlease log in to BloodConnect to accept or decline the request.\n\nBest regards,\nBloodConnect Team`;
+        const emailBody = `Hello ${donor.name},\n\nThere is an urgent emergency blood request near you.\n\nDetails:\n- Blood Needed: ${bloodGroupNeeded} (${units} units)\n- Hospital: ${hospitalName}\n- Urgency: ${urgency.toUpperCase()}\n- Contact: ${contactPhone}\n\nPlease log in to BloodConnect to accept or decline the request.\n\nBest regards,\nBloodConnect Team`;
         await sendFallbackEmail(donor.email, `Urgent SOS: ${bloodGroupNeeded} Required`, emailBody);
       }
     }
 
     // 5. Notify matching blood banks
     for (const bank of matchingBanks) {
-      const message = `URGENT: Blood Bank Alert! ${bloodGroupNeeded} required at ${hospitalName}. Contact: ${contactPhone}`;
+      const message = `URGENT: Blood Bank Alert! ${units} unit(s) of ${bloodGroupNeeded} required at ${hospitalName}. Contact: ${contactPhone}`;
 
       // Create Notification in DB for Blood Bank
       await Notification.create({
@@ -185,28 +196,20 @@ exports.createSOS = async (req, res) => {
 
       const bankSocketId = onlineUsers[bank._id.toString()];
       if (bankSocketId && io) {
-        // Bank is online, send real-time socket event
-        io.to(bankSocketId).emit('sos:bankAlert', {
-          _id: sosRequest._id,
-          requester: {
-            name: req.user.name,
-            phone: req.user.phone,
-          },
-          bloodGroupNeeded,
-          urgency,
-          hospitalName,
-          location: sosRequest.location,
-          contactPhone,
-          status: 'pending',
-          createdAt: sosRequest.createdAt,
-        });
-        console.log(`Socket broadcasted SOS to Blood Bank: ${bank.name} (Socket ID: ${bankSocketId})`);
+        io.to(bankSocketId).emit('sos:bankAlert', sosPayload);
+      } else if (io) {
+        io.to(`user:${bank._id}`).emit('sos:bankAlert', sosPayload);
       }
+    }
+
+    // 6. Broadcast new SOS request immediately to Admin Dashboard room
+    if (io) {
+      io.to('role:admin').emit('sos:admin_new', fullSosRequest);
     }
 
     res.status(201).json({
       success: true,
-      data: sosRequest,
+      data: fullSosRequest,
       notifiedCount: matchingDonors.length,
       notifiedBanksCount: matchingBanks.length,
     });
@@ -320,16 +323,14 @@ exports.respondToSOS = async (req, res) => {
 
     // If accepted, we can optionally mark SOS status as fulfilled (or let requester mark it)
     // For now, let's keep the SOS pending until the requester updates it, or update SOS status if needed.
-    // Let's keep it pending so other donors can also accept if needed, or update if user prefers. Let's keep SOS pending.
     await sosRequest.save();
 
-    // Notify requester in real-time
+    // Notify requester in real-time using user room and admin room
     const io = req.app.get('io');
-    const onlineUsers = req.app.get('onlineUsers') || {};
-    const requesterSocketId = onlineUsers[sosRequest.requesterId.toString()];
+    const requesterId = sosRequest.requesterId.toString();
 
-    if (requesterSocketId && io) {
-      io.to(requesterSocketId).emit('sos:response', {
+    if (io) {
+      io.to(`user:${requesterId}`).emit('sos:response', {
         sosRequestId: sosRequest._id,
         donor: {
           _id: req.user._id,
@@ -338,8 +339,17 @@ exports.respondToSOS = async (req, res) => {
           bloodGroup: req.user.bloodGroup,
         },
         status,
+        updatedAt: new Date(),
       });
-      console.log(`Socket notified requester of response: from donor ${req.user.name} to requester room`);
+
+      io.to('role:admin').emit('sos:admin_update', {
+        sosRequestId: sosRequest._id,
+        responderName: req.user.name,
+        responderRole: 'donor',
+        status,
+        updatedAt: new Date(),
+      });
+      console.log(`Socket notified requester room user:${requesterId} and role:admin of donor ${req.user.name} response (${status})`);
     }
 
     // Mark corresponding notification as read
@@ -397,6 +407,7 @@ exports.getBankIncomingSOS = async (req, res) => {
         _id: reqItem._id,
         requester: reqItem.requesterId,
         bloodGroupNeeded: reqItem.bloodGroupNeeded,
+        unitsRequired: reqItem.unitsRequired || 1,
         urgency: reqItem.urgency,
         hospitalName: reqItem.hospitalName,
         location: reqItem.location,
@@ -467,13 +478,12 @@ exports.offerStockSOS = async (req, res) => {
 
     await sosRequest.save();
 
-    // Socket notify requester
+    // Socket notify requester room & admin room
     const io = req.app.get('io');
-    const onlineUsers = req.app.get('onlineUsers') || {};
-    const requesterSocketId = onlineUsers[sosRequest.requesterId.toString()];
+    const requesterId = sosRequest.requesterId.toString();
 
-    if (requesterSocketId && io) {
-      io.to(requesterSocketId).emit('sos:bankOffer', {
+    if (io) {
+      io.to(`user:${requesterId}`).emit('sos:bankOffer', {
         sosRequestId: sosRequest._id,
         bloodBank: {
           _id: req.user._id,
@@ -482,8 +492,17 @@ exports.offerStockSOS = async (req, res) => {
         },
         unitsOffered: parseInt(unitsOffered),
         status: 'pending',
+        updatedAt: new Date(),
       });
-      console.log(`Socket broadcasted bank stock offer from ${req.user.name} to requester`);
+
+      io.to('role:admin').emit('sos:admin_update', {
+        sosRequestId: sosRequest._id,
+        responderName: req.user.name,
+        responderRole: 'bloodbank',
+        status: `offered ${unitsOffered} units`,
+        updatedAt: new Date(),
+      });
+      console.log(`Socket broadcasted bank stock offer from ${req.user.name} to user:${requesterId} and role:admin`);
     }
 
     res.status(200).json({

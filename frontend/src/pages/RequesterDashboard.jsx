@@ -234,7 +234,7 @@ const RequesterDashboard = () => {
                     <div className="space-y-2.5 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="wristband-badge font-mono font-bold text-xs">
-                          {req.bloodGroupNeeded} Required
+                          {req.bloodGroupNeeded} ({req.unitsRequired || 1} Unit{req.unitsRequired > 1 ? 's' : ''}) Required
                         </span>
                         {getUrgencyBadge(req.urgency)}
                         <span className="text-xxs text-gray-400 font-semibold font-mono flex items-center">

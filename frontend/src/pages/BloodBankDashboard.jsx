@@ -25,7 +25,7 @@ const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const BloodBankDashboard = () => {
   const { user, updateProfile } = useAuth();
-  const { socket } = useSocket() || {};
+  const { socket, offerStockSOS } = useSocket() || {};
   const [activeTab, setActiveTab] = useState('inventory'); // 'inventory', 'donations', 'sos', 'profile'
   
   // Stock State
@@ -196,6 +196,10 @@ const BloodBankDashboard = () => {
     }
 
     try {
+      if (offerStockSOS) {
+        offerStockSOS(sosRequestId, parseInt(units));
+      }
+
       const res = await api.put(`/sos/${sosRequestId}/bank-offer`, {
         unitsOffered: parseInt(units)
       });
@@ -203,7 +207,7 @@ const BloodBankDashboard = () => {
         toast.success('Stock offer submitted to requester!');
         // Refresh local details
         fetchIncomingSOS();
-        fetchProfileData(); // stock gets held/decremented on acceptance, but good to fetch
+        fetchProfileData();
       }
     } catch (err) {
       console.error(err);

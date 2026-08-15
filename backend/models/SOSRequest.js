@@ -21,6 +21,11 @@ const SOSRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    unitsRequired: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
     location: {
       type: {
         type: String,
