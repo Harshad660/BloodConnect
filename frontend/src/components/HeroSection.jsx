@@ -1,235 +1,145 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, AlertTriangle, Users, Clock, Activity, ShieldCheck, MapPin } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  AlertTriangle,
+  Heart,
+  MapPin,
+  ShieldCheck,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const HeroSection = () => {
   const { user } = useAuth();
-  const [donorCount, setDonorCount] = useState(0);
-
-  useEffect(() => {
-    // Respect reduced-motion settings
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      setDonorCount(142);
-      return;
-    }
-
-    let start = 0;
-    const end = 142;
-    const duration = 1500; // 1.5 seconds
-    const intervalTime = 16; // ~60fps
-    const step = (end / (duration / intervalTime));
-
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= end) {
-        setDonorCount(end);
-        clearInterval(timer);
-      } else {
-        setDonorCount(Math.floor(start));
-      }
-    }, intervalTime);
-
-    return () => clearInterval(timer);
-  }, []);
 
   return (
-    <section className="bg-clinical-bg border-b border-soft-border py-8 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+    <section className="relative overflow-hidden border-b border-gray-200 bg-white px-4 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+      
+      {/* Soft background shapes */}
+      <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-rose-50 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
         
-        {/* Left Side: Human Message, CTAs, and Photo */}
-        <div className="lg:col-span-6 flex flex-col space-y-8">
-          {/* Header Message block */}
-          <div className="space-y-4">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-xxs font-bold bg-sos-red/10 border border-sos-red/30 text-sos-red">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sos-red opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-sos-red"></span>
-              </span>
-              <span>EMERGENCY DISPATCH SYSTEM ACTIVE</span>
-            </div>
-            
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black font-display tracking-tight leading-tight text-ink-dark">
-              When standard blood stocks are empty, <span className="text-brand-red">seconds save lives.</span>
-            </h1>
-            
-            <p className="text-sm sm:text-base text-gray-600 font-medium leading-relaxed max-w-xl">
-              BloodConnect instantly links critical hospital demands to registered standby donors within an active 10km radius. No middlemen, no delays.
-            </p>
+        {/* Left content */}
+        <div className="hero-content-animation">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-1.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-50" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-600" />
+            </span>
+
+            <span className="text-xs font-semibold text-red-700">
+              Emergency donor network
+            </span>
           </div>
 
-          {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+            Someone nearby may be waiting for{" "}
+            <span className="relative text-red-600">
+              your help.
+              <span className="absolute -bottom-2 left-0 h-1 w-full rounded-full bg-red-100" />
+            </span>
+          </h1>
+
+          <p className="mt-7 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg">
+            Find nearby blood donors and blood banks when every minute matters.
+            A small action from you can give someone another chance at life.
+          </p>
+
+          {/* Buttons */}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               to={user ? "/sos/new" : "/login"}
-              className="inline-flex items-center justify-center space-x-2 bg-sos-red hover:bg-sos-red/90 text-white font-extrabold px-8 py-4 rounded-xl text-sm tracking-wide shadow-lg shadow-sos-red/20 transition duration-150 transform hover:-translate-y-0.5 text-center"
+              className="group inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:bg-red-700 hover:shadow-lg hover:shadow-red-200 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
             >
-              <AlertTriangle className="h-4 w-4 animate-bounce" />
-              <span>Request Blood Now</span>
+              <AlertTriangle className="h-4 w-4 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110" />
+              Request Blood
             </Link>
 
             <Link
               to={user ? "/donor/dashboard" : "/signup"}
-              className="inline-flex items-center justify-center space-x-2 bg-white hover:bg-gray-50 text-ink-dark border border-soft-border font-bold px-8 py-4 rounded-xl text-sm transition duration-150 text-center"
+              className="group inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-6 py-3.5 text-sm font-semibold text-gray-800 transition-all duration-300 hover:-translate-y-1 hover:border-red-300 hover:bg-red-50 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
             >
-              <Heart className="h-4 w-4 text-brand-red fill-brand-red" />
-              <span>Become a Donor</span>
+              <Heart className="h-4 w-4 fill-red-600 text-red-600 transition-transform duration-300 group-hover:scale-125" />
+              Become a Donor
             </Link>
           </div>
 
-          {/* Real Human Photo */}
-          <div className="relative rounded-2xl overflow-hidden border border-soft-border shadow-sm bg-white p-2">
-            <img 
-              src="/images/donor_hero.png" 
-              alt="Community donor smiling during a warm local donation session" 
-              className="w-full h-48 sm:h-56 lg:h-64 object-cover rounded-xl"
+          {/* Trust information */}
+          <div className="mt-9 flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-600">
+            <span className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-red-600" />
+              Donors within 10 km
+            </span>
+
+            <span className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-red-600" />
+              Secure and verified
+            </span>
+          </div>
+        </div>
+
+        {/* Image section */}
+        <div className="relative image-entry-animation">
+          
+          {/* Floating blood-group symbols */}
+          <div className="floating-symbol absolute -left-5 top-12 z-20 flex h-14 w-14 items-center justify-center rounded-2xl border border-red-100 bg-white font-bold text-red-600 shadow-lg">
+            O+
+          </div>
+
+          <div className="floating-symbol-delayed absolute -right-4 bottom-24 z-20 flex h-12 w-12 items-center justify-center rounded-2xl border border-red-100 bg-white text-sm font-bold text-red-600 shadow-lg">
+            A+
+          </div>
+
+          {/* Main image */}
+          <div className="group relative overflow-hidden rounded-3xl bg-gray-100 shadow-xl">
+            <img
+              src="https://wockhardthospitals.com/wp-content/uploads/2020/01/shutterstock_264395594-1-768x768-1.webp"
+              alt="Volunteer donating blood at a healthcare centre"
+              className="h-[430px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur border border-soft-border px-3.5 py-1.5 rounded-xl shadow-sm text-xxs font-extrabold flex items-center space-x-1.5">
-              <span className="h-2 w-2 rounded-full bg-trust-teal animate-pulse"></span>
-              <span className="text-ink-dark">Active Coordination Camp</span>
-            </div>
-          </div>
-        </div>
 
-        {/* Right Side: Live Dashboard Mockup Panel */}
-        <div className="lg:col-span-6">
-          <div className="bg-white rounded-3xl border border-soft-border shadow-xl p-5 sm:p-6 space-y-5 relative overflow-hidden">
-            
-            {/* Live Indicator Topbar */}
-            <div className="flex items-center justify-between border-b border-soft-border pb-3.5">
-              <div className="flex items-center space-x-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-trust-teal opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-trust-teal"></span>
-                </span>
-                <span className="text-[11px] font-extrabold uppercase tracking-widest text-ink-dark">Live Network Status</span>
-              </div>
-              <span className="text-[10px] font-bold text-gray-400 bg-clinical-bg px-2.5 py-1 rounded-full flex items-center gap-1">
-                <Clock className="h-3 w-3 text-trust-teal" /> Real-time Feed
-              </span>
-            </div>
+            {/* Image gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
 
-            {/* Counters Section */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-clinical-bg/70 border border-soft-border/70 rounded-2xl p-3.5">
-                <p className="text-3xl font-black text-ink-dark font-display leading-tight">{donorCount}</p>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mt-0.5">Active Donors Online</p>
-              </div>
-              <div className="bg-clinical-bg/70 border border-soft-border/70 rounded-2xl p-3.5">
-                <p className="text-3xl font-black text-trust-teal font-display leading-tight">4.2 min</p>
-                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide mt-0.5">Avg Matching Speed</p>
-              </div>
-            </div>
-
-            {/* Live Map Snippet */}
-            <div className="relative h-44 bg-slate-50 border border-soft-border rounded-2xl overflow-hidden shadow-inner">
-              {/* Grid backdrop */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:20px_20px] opacity-40"></div>
-              
-              {/* Custom SVG Maps vector lines */}
-              <svg className="absolute inset-0 h-full w-full text-slate-200" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M-20,50 Q120,65 240,40 T440,80" />
-                <path d="M80,-20 V200" />
-                <path d="M220,-20 Q160,80 260,220" />
-                <path d="M-20,130 H440" strokeWidth="4" className="text-slate-100" />
-                <path d="M-20,130 H440" strokeDasharray="5 5" strokeWidth="1.5" />
-              </svg>
-              
-              {/* SOS Emergency marker (Red pulse) */}
-              <div className="absolute top-[60px] left-[150px] transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                <span className="relative flex h-6 w-6 justify-center items-center">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sos-red opacity-60"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-sos-red"></span>
-                </span>
-                <span className="mt-1 bg-sos-red text-white font-extrabold text-[8px] px-2 py-0.5 rounded shadow-sm whitespace-nowrap">
-                  Emergency: O- Needed
-                </span>
-              </div>
-
-              {/* Active Donor coordinates (Teal pulses) */}
-              <div className="absolute top-[110px] left-[70px] transform -translate-x-1/2 -translate-y-1/2">
-                <span className="relative flex h-5 w-5 justify-center items-center">
-                  <span className="animate-pulse-fast absolute inline-flex h-full w-full rounded-full bg-trust-teal opacity-60"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-trust-teal"></span>
-                </span>
-              </div>
-
-              <div className="absolute top-[35px] left-[290px] transform -translate-x-1/2 -translate-y-1/2">
-                <span className="relative flex h-5 w-5 justify-center items-center">
-                  <span className="animate-pulse-fast absolute inline-flex h-full w-full rounded-full bg-trust-teal opacity-60"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-trust-teal"></span>
-                </span>
-              </div>
-
-              <div className="absolute top-[135px] left-[230px] transform -translate-x-1/2 -translate-y-1/2">
-                <span className="relative flex h-5 w-5 justify-center items-center">
-                  <span className="animate-pulse-fast absolute inline-flex h-full w-full rounded-full bg-trust-teal opacity-60"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-trust-teal"></span>
-                </span>
-              </div>
-            </div>
-
-            {/* Mini SOS Card notification */}
-            <div className="bg-white border border-soft-border rounded-2xl p-4 shadow-sm hover:shadow-md transition duration-150 relative overflow-hidden group">
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-sos-red"></div>
-              
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3 pl-1">
-                  <div className="wristband-badge sos font-mono flex items-center justify-center h-8 w-8 text-xs font-black shadow-inner">
-                    O-
-                  </div>
-                  <div>
-                    <div className="flex items-center space-x-1.5">
-                      <h4 className="text-xs font-black text-ink-dark font-display">St. John's Hospital ER</h4>
-                      <span className="h-1.5 w-1.5 rounded-full bg-sos-red animate-pulse"></span>
-                    </div>
-                    <p className="text-[10px] text-gray-500 font-semibold mt-0.5">Critical priority • Broadcast sent</p>
-                  </div>
+            {/* Message displayed on image */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 text-white sm:p-8">
+              <div className="flex items-start gap-3">
+                <div className="heart-animation flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-600">
+                  <Heart className="h-5 w-5 fill-white" />
                 </div>
-                <span className="text-[10px] font-black text-sos-red bg-sos-red/10 px-2 py-0.5 rounded-md">
-                  2m ago
-                </span>
-              </div>
 
-              <div className="mt-3 pl-1 flex items-center justify-between text-[10px]">
-                <div className="flex items-center space-x-1 text-gray-500">
-                  <Users className="h-3 w-3 text-trust-teal" />
-                  <span>3 nearby donors notified</span>
-                </div>
-                <span className="font-extrabold text-trust-teal flex items-center gap-1">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-trust-teal animate-ping"></span>
-                  1.8 km away
-                </span>
-              </div>
-            </div>
+                <div>
+                  <p className="text-lg font-semibold">
+                    One donation can save lives
+                  </p>
 
-            {/* Tiny Inventory Strip */}
-            <div className="bg-clinical-bg/50 border border-soft-border rounded-xl p-3.5">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-black uppercase tracking-wider text-gray-500">Critical Stock Inventory</span>
-                <span className="text-[9px] font-extrabold text-trust-teal flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-trust-teal animate-pulse"></span> Live
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <div className="bg-white border border-soft-border/80 rounded-lg p-2 flex-1 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-ink-dark font-mono">O-</span>
-                  <span className="text-[10px] font-extrabold text-sos-red bg-sos-red/10 px-1.5 py-0.5 rounded">4 units</span>
-                </div>
-                <div className="bg-white border border-soft-border/80 rounded-lg p-2 flex-1 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-ink-dark font-mono">A+</span>
-                  <span className="text-[10px] font-extrabold text-trust-teal bg-trust-teal/10 px-1.5 py-0.5 rounded">12 units</span>
-                </div>
-                <div className="bg-white border border-soft-border/80 rounded-lg p-2 flex-1 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-ink-dark font-mono">B+</span>
-                  <span className="text-[10px] font-extrabold text-trust-teal bg-trust-teal/10 px-1.5 py-0.5 rounded">8 units</span>
+                  <p className="mt-1 text-sm leading-6 text-gray-200">
+                    Your support can give a family hope during its most
+                    difficult moment.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
+          {/* Verified card */}
+          <div className="absolute -bottom-6 left-6 right-6 flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-xl sm:left-10 sm:right-auto sm:min-w-[260px]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-50">
+              <ShieldCheck className="h-5 w-5 text-green-600" />
+            </div>
+
+            <div>
+              <p className="text-sm font-semibold text-gray-900">
+                Verified donor network
+              </p>
+
+              <p className="mt-0.5 text-xs text-gray-500">
+                Safe and reliable connections
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
