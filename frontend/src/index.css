@@ -206,11 +206,77 @@
   animation: soft-heartbeat 2.5s ease-in-out infinite;
 }
 
+/* ── HeroSection animations ─────────────────────────────────────── */
+
+/* Hero left-column: fade + slide up */
+@keyframes hero-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-content-animation {
+  animation: hero-content-in 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Hero right-column image: fade + slide in from the right */
+@keyframes image-entry-in {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.image-entry-animation {
+  animation: image-entry-in 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Floating blood-group badge – gentle bob */
+@keyframes symbol-float {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-10px) rotate(2deg); }
+}
+
+.floating-symbol {
+  animation: symbol-float 4s ease-in-out infinite;
+}
+
+.floating-symbol-delayed {
+  animation: symbol-float 4s ease-in-out 1.5s infinite;
+}
+
+/* Heart pulse on the image overlay */
+@keyframes heart-pulse {
+  0%, 100% { transform: scale(1); }
+  20%       { transform: scale(1.18); }
+  40%       { transform: scale(1); }
+  60%       { transform: scale(1.1); }
+  80%       { transform: scale(1); }
+}
+
+.heart-animation {
+  animation: heart-pulse 2.2s ease-in-out infinite;
+}
+
 /* Respect accessibility settings */
 @media (prefers-reduced-motion: reduce) {
   .animate-gentle-float,
   .animate-reveal-up,
-  .animate-soft-heartbeat {
+  .animate-soft-heartbeat,
+  .hero-content-animation,
+  .image-entry-animation,
+  .floating-symbol,
+  .floating-symbol-delayed,
+  .heart-animation {
     animation: none;
   }
 }

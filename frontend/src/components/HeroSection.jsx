@@ -13,13 +13,13 @@ const HeroSection = () => {
 
   return (
     <section className="relative overflow-hidden border-b border-gray-200 bg-white px-4 py-14 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-      
+
       {/* Soft background shapes */}
       <div className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-red-50 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-rose-50 blur-3xl" />
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-        
+
         {/* Left content */}
         <div className="hero-content-animation">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-red-100 bg-red-50 px-3 py-1.5">
@@ -81,7 +81,7 @@ const HeroSection = () => {
 
         {/* Image section */}
         <div className="relative image-entry-animation">
-          
+
           {/* Floating blood-group symbols */}
           <div className="floating-symbol absolute -left-5 top-12 z-20 flex h-14 w-14 items-center justify-center rounded-2xl border border-red-100 bg-white font-bold text-red-600 shadow-lg">
             O+
@@ -94,7 +94,7 @@ const HeroSection = () => {
           {/* Main image */}
           <div className="group relative overflow-hidden rounded-3xl bg-gray-100 shadow-xl">
             <img
-              src="https://wockhardthospitals.com/wp-content/uploads/2020/01/shutterstock_264395594-1-768x768-1.webp"
+              src="https://surgmedia.com/wp-content/uploads/2020/10/2171-blood-donation.jpg"
               alt="Volunteer donating blood at a healthcare centre"
               className="h-[430px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
