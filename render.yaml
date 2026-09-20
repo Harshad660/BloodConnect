@@ -1,0 +1,15 @@
+﻿services:
+  - type: web
+    name: bloodconnect-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Add your secret env vars in the Render dashboard (not here):
+      # MONGO_URI, JWT_SECRET, EMAIL_USER, EMAIL_PASS
+    healthCheckPath: /
