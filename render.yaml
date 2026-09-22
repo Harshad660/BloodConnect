@@ -1,4 +1,4 @@
-﻿services:
+services:
   - type: web
     name: bloodconnect-backend
     runtime: node
@@ -10,6 +10,12 @@
         value: production
       - key: PORT
         value: 5000
-      # Add your secret env vars in the Render dashboard (not here):
-      # MONGO_URI, JWT_SECRET, EMAIL_USER, EMAIL_PASS
+      - key: MONGO_URI
+        value: mongodb+srv://siddheshwarharshad_db_:a13O7bEtdfmRNSqk@cluster0.hyoa8sj.mongodb.net/bloodconnect?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        value: bloodconnect_super_secret_key_12345
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
     healthCheckPath: /
